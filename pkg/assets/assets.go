@@ -300,6 +300,12 @@ func (f *Filter) processReader(r io.Reader) (*finalFile, error) {
 
 	outputFile := io.MultiReader(&buf, r)
 
+	// Treat .jar file as a final binary, skip uncompressing.
+	if strings.HasSuffix(strings.ToLower(f.name), ".jar") {
+        // log.Debugf("Detected .jar file (%s) by name, treating as final binary without processing.", f.name)
+        return &finalFile{Source: outputFile, Name: f.name, PackagePath: f.packagePath}, nil
+    }
+
 	type processorFunc func(repoName string, r io.Reader) (*finalFile, error)
 	var processor processorFunc
 	switch t {
